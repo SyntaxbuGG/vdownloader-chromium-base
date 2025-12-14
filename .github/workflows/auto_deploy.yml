@@ -18,6 +18,9 @@ jobs:
             echo "SERVER_HOST=${{ secrets.SERVER_HOST }}"
             echo "SERVER_USER=${{ secrets.SERVER_USER }}"
             echo "SERVER_PATH=${{ secrets.SERVER_PATH }}"
+      - name: Debug env
+        run: env
+
 
 
       - name: Setup SSH
