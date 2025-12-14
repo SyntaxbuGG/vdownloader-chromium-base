@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout repos
         uses: actions/checkout@v4
+      - name: Check secrets
+        run: |
+          echo "SERVER_HOST = ${{ secrets.SERVER_HOST }}"
+          echo "SERVER_USER = ${{ secrets.SERVER_USER }}"
+          echo "SERVER_PATH = ${{ secrets.SERVER_PATH }}"
 
       - name: Setup SSH
         run: |
