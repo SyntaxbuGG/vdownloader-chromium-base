@@ -50,7 +50,6 @@ app.add_middleware(
 )
 
 
-
 def get_url_basename(url):
     """Достаём имя файла из URL, если заголовков нет."""
     parsed = urlparse(url)
@@ -84,8 +83,9 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
         ]
 
         result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode != 0:
-            logging.warning(f"FFprobe failed: {result.stderr}")
+        if result.returncode != 0: 
+            logging.exception("Ошибка при обработке video_info")  # показывает stack trace
+            raise HTTPException(400, "Не удалось получить информацию о видео")
             return json.dumps({"format": {}})
 
         return result.stdout
