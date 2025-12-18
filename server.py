@@ -82,7 +82,7 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
             filepath_or_url
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
         if result.returncode != 0: 
             logging.exception("Ошибка при обработке video_info")  # показывает stack trace
             raise HTTPException(400, "Не удалось получить информацию о видео")
