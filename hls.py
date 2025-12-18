@@ -3,11 +3,11 @@ import httpx
 import re
 
 
-async def get_hls_video_size(url: str) -> int | None:
+async def get_hls_video_size(url: str) -> tuple[int | None, float | None]:
     async with httpx.AsyncClient(http2=True) as client:
         resp = await client.get(url)
         if resp.status_code != 200:
-            return None
+            return None,None
 
         lines = resp.text.splitlines()
         total_duration = 0.0
@@ -40,21 +40,18 @@ async def get_hls_video_size(url: str) -> int | None:
 
         # если нет длительности — не сможем посчитать
         if total_duration == 0:
-            return None
-
-        # если битрейт не указан — пробуем вычислить по первому сегменту
-        if bitrate is None and first_segment_url and first_segment_duration:
-
-            head = await client.head(first_segment_url, follow_redirects=True)
-            size = int(head.headers.get("Content-Length", 0))
-            return size if size > 0 else None
-
+            return None, None
         if bitrate:
             total_size = int(bitrate * total_duration / 8)  # байты
-          
-            return total_size
+            return total_size, total_duration
 
-        return None
+        # если битрейт не указан — пробуем вычислить по первому сегменту
+        if first_segment_url and first_segment_duration:
+            head = await client.head(first_segment_url, follow_redirects=True)
+            size = int(head.headers.get("Content-Length", 0)) or None
+            return size, total_duration
+
+        return None,total_duration  
 
 
 # async def fetch_urls(line: str, url: str, client: httpx.AsyncClient) -> int:

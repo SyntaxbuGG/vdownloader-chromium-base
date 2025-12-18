@@ -68,6 +68,10 @@ def build_ff_headers(headers: dict | None = None):
 async def probe_video(filepath_or_url: str, headers: dict | None = None, video_type: str | None = None,):
     """Возвращает размер и длительность видео"""
 
+    if video_type in mediaStreamExtensions:
+        size, duration = await get_hls_video_size(filepath_or_url)
+        return size, duration
+
     def run_ffprobe():
         base_cmd = [
             "ffprobe", "-v", "error",
@@ -83,7 +87,7 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
         ]
         try:
             result = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=None, text=True, timeout=15, check=True)
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=15, check=True)
 
             return result.stdout
 
@@ -97,11 +101,9 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
 
     output = await asyncio.to_thread(run_ffprobe)
     info = json.loads(output)
-    if video_type in mediaStreamExtensions:
-        size = await get_hls_video_size(filepath_or_url)
-    else:
-        size_raw = info["format"].get("size")
-        size = int(size_raw) if size_raw else None
+
+    size_raw = info["format"].get("size")
+    size = int(size_raw) if size_raw else None
 
     duration_raw = info["format"].get("duration")
     duration_sec = float(duration_raw) if duration_raw else None
