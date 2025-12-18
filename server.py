@@ -4,6 +4,7 @@ import json
 import subprocess
 import uuid
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 import os
 import logging
@@ -20,6 +21,9 @@ from fastapi.staticfiles import StaticFiles
 
 from hls import get_hls_video_size
 
+from dotenv import load_dotenv
+load_dotenv()
+
 mediaStreamExtensions = ['HLS', "DASH"]
 user_semaphores = defaultdict(lambda: asyncio.Semaphore(2))
 
@@ -30,9 +34,22 @@ user_semaphores = defaultdict(lambda: asyncio.Semaphore(2))
 
 logging.basicConfig(level=logging.WARNING)
 
+EXTENSION_ID_STORE = os.environ.get("EXTENSION_ID_STORE")
+EXTENSION_ID_LOCAL = os.environ.get("EXTENSION_ID_LOCAL")
+
+
 
 app = FastAPI()
 # app.mount("/thumbnails", StaticFiles(directory="thumbnails"), name="thumbnails")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[EXTENSION_ID_LOCAL],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+    allow_credentials=False,
+)
+
 
 
 def get_url_basename(url):
