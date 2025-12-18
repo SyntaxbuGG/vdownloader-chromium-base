@@ -21,18 +21,18 @@ from fastapi.staticfiles import StaticFiles
 from hls import get_hls_video_size
 
 mediaStreamExtensions = ['HLS', "DASH"]
-user_semaphores = defaultdict(lambda: asyncio.Semaphore(3))
+user_semaphores = defaultdict(lambda: asyncio.Semaphore(2))
 
-SAVE_DIR = "downloads"
-THUMB_DIR = "thumbnails"
-os.makedirs(SAVE_DIR, exist_ok=True)
-os.makedirs(THUMB_DIR, exist_ok=True)
+# SAVE_DIR = "downloads"
+# THUMB_DIR = "thumbnails"
+# os.makedirs(SAVE_DIR, exist_ok=True)
+# os.makedirs(THUMB_DIR, exist_ok=True)
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 
 app = FastAPI()
-app.mount("/thumbnails", StaticFiles(directory="thumbnails"), name="thumbnails")
+# app.mount("/thumbnails", StaticFiles(directory="thumbnails"), name="thumbnails")
 
 
 def get_url_basename(url):
@@ -101,7 +101,7 @@ async def video_info(data: DownloadRequest):
         raise HTTPException(400, "Не удалось получить информацию о видео")
 
 
-async def stream_ffmpeg_output(proc: subprocess.Popen, chunk_size: int = 512 * 1024):
+async def stream_ffmpeg_output(proc: subprocess.Popen, chunk_size: int = 1024 * 1024):
     """Отдаёт stdout ffmpeg как поток для StreamingResponse"""
     while chunk := await asyncio.to_thread(proc.stdout.read, chunk_size):
         yield chunk
@@ -130,8 +130,8 @@ async def run_ffmpeg_process(url: str, headers: dict | None = None) -> subproces
         cmd,
         stdout=subprocess.PIPE,
         # stderr=subprocess.PIPE,
-        stderr=None,  # для показа в консоль данные
-        # stderr=subprocess.DEVNULL,  # 🔇 подавляем ffmpeg логи
+        # stderr=None,  # для показа в консоль данные
+        stderr=subprocess.DEVNULL,  # 🔇 подавляем ffmpeg логи
         bufsize=0
     )
 
