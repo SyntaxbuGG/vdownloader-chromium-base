@@ -153,8 +153,8 @@ async def run_ffmpeg_process(url: str, headers: dict | None = None) -> subproces
         cmd,
         stdout=subprocess.PIPE,
         # stderr=subprocess.PIPE,
-        stderr=None,  # для показа в консоль данные
-        # stderr=subprocess.DEVNULL,  # 🔇 подавляем ffmpeg логи
+        # stderr=None,  # для показа в консоль данные
+        stderr=subprocess.DEVNULL,  # 🔇 подавляем ffmpeg логи
         bufsize=0
     )
 
