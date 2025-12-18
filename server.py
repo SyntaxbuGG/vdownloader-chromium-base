@@ -34,7 +34,7 @@ user_semaphores = defaultdict(lambda: asyncio.Semaphore(2))
 
 logging.basicConfig(level=logging.WARNING)
 
-EXTENSION_ID_STORE = os.environ.get("EXTENSION_ID_STORE","*")
+EXTENSION_ID_STORE = os.environ.get(["EXTENSION_ID_STORE","*"])
 EXTENSION_ID_LOCAL = os.environ.get("EXTENSION_ID_LOCAL")
 
 
