@@ -71,8 +71,8 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
     def run_ffprobe():
         base_cmd = [
             "ffprobe", "-v", "error",
-            "-analyzeduration", "10M",
-            "-probesize", "10M",
+            "-analyzeduration", "3M",
+            "-probesize", "3M",
             "-of", "json"
         ] + build_ff_headers(headers)
 
@@ -81,14 +81,19 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
             "-show_entries", "format=duration,size,bit_rate",
             filepath_or_url
         ]
+        try:
+            result = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=None, text=True, timeout=15, check=True)
 
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-        if result.returncode != 0: 
-            logging.exception("Ошибка при обработке video_info")  # показывает stack trace
+            return result.stdout
+
+        except subprocess.TimeoutExpired:
+            logging.warning("ffprobe timeout: %s", filepath_or_url)
+            raise HTTPException(408, "Истекло время анализа видео")
+
+        except subprocess.CalledProcessError as e:
+            logging.warning("ffprobe error: %s", e.stderr)
             raise HTTPException(400, "Не удалось получить информацию о видео")
-            return json.dumps({"format": {}})
-
-        return result.stdout
 
     output = await asyncio.to_thread(run_ffprobe)
     info = json.loads(output)
