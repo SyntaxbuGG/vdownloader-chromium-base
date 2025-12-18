@@ -34,9 +34,8 @@ user_semaphores = defaultdict(lambda: asyncio.Semaphore(2))
 
 logging.basicConfig(level=logging.WARNING)
 
-EXTENSION_ID_STORE = os.environ.get(["EXTENSION_ID_STORE","*"])
+EXTENSION_ID_STORE = os.environ.get("EXTENSION_ID_STORE")
 EXTENSION_ID_LOCAL = os.environ.get("EXTENSION_ID_LOCAL")
-
 
 
 app = FastAPI()
@@ -44,7 +43,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[EXTENSION_ID_LOCAL],
+    allow_origins=["*"],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
     allow_credentials=False,
@@ -153,8 +152,6 @@ async def run_ffmpeg_process(url: str, headers: dict | None = None) -> subproces
     )
 
     return proc
-
-
 
 
 @app.post("/download")
