@@ -34,7 +34,7 @@ user_semaphores = defaultdict(lambda: asyncio.Semaphore(2))
 
 logging.basicConfig(level=logging.WARNING)
 
-EXTENSION_ID_STORE = os.environ.get("EXTENSION_ID_STORE")
+EXTENSION_ID_STORE = os.environ.get("EXTENSION_ID_STORE","*")
 EXTENSION_ID_LOCAL = os.environ.get("EXTENSION_ID_LOCAL")
 
 
@@ -46,7 +46,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[EXTENSION_ID_LOCAL],
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["*"],
     allow_credentials=False,
 )
 
