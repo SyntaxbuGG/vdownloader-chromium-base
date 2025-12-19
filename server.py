@@ -87,7 +87,7 @@ async def probe_video(filepath_or_url: str, headers: dict | None = None, video_t
         ]
         try:
             result = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=15, check=True)
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30, check=True)
 
             return result.stdout
 
@@ -140,6 +140,8 @@ async def run_ffmpeg_process(url: str, headers: dict | None = None) -> subproces
         "-hide_banner",          # убираем баннер версииF
         *headers_args,
         "-i", url,
+        "-map", "0:v:0?",  # взять видео, если есть
+        "-map", "0:a:0?",  # взять аудио, если есть
         "-c:v", "copy",  # видео копируем
         "-c:a", "aac",   # аудио перекодируем в AAC
         "-b:a", "128k",  # битрейт аудио
