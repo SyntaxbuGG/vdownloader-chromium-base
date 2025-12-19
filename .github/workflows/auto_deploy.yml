@@ -25,5 +25,8 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd ${{ secrets.SERVER_PATH }}
             git pull origin main
+            source venv/bin/activate 
+            pip install --upgrade pip
+            pip install -r requirements.txt
             sudo systemctl restart fastapi.service
           EOF
